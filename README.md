@@ -6,3 +6,5 @@
 * Rename the FASTQ file with the barcode and copy them outside the barcode folders.
 ## run_metamaps.sh
 * Run MetaMaps.
+## split_file.sh
+* How to split file with bash command.
