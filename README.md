@@ -11,11 +11,11 @@
 ## Run `seqkit stats` with GNU parallel (much faster with many files)
 If fastq files are in fastq folder, just this:
 
-`ls -d fastq/*fastq.gz | parallel seqkit stats -T -a | sed -n '/file\t/!p'`
+`ls -d fastq/*fastq.gz | parallel seqkit stats -T -a | sed -n '/file/!p'`
 
 or
 
-`parallel -k --eta seqkit stats -T -a ::: fastq/*fastq.gz`
+`parallel -k seqkit stats -T -a ::: fastq/js/*fastq.gz | sed -n '/file/!p'`
 
 The header (that is deleted and has to be added again) for the output is:
 
