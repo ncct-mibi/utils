@@ -23,3 +23,7 @@ or
 The header (that is deleted and has to be added again) for the output is:
 
 `file	format	type	num_seqs	sum_len	min_len	avg_len	max_len	Q1	Q2	Q3	sum_gap	N50	Q20(%)	Q30(%)`
+
+## rename_nanopore.sh
+* Rename the Nanopore files with a CSV file.
+* Usage: rename_nanopore.sh /path/to/nanopore/files/ /path/to/rename.csv
