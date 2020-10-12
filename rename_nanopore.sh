@@ -1,38 +1,24 @@
 #!/bin/bash
 
+#This script is for the rename of Nanopore files. 
+
 #Check user input.
 #$1: a valid path contains .fastq or .fastq.gz files.
 #$2: a valid .csv file. Comma-seperated file contains pairs of old barcodes and new barcodes. 
-[ -d "$1" ] || echo Error: Invalid path. Program exits. || exit
-[[ $2 =~ \.csv$ ]] || echo Error: Invalid .csv file. Program exits. || exit
+[ -d "$1" ] || exit
+[[ $2 =~ \.csv$ ]] || exit
 
-cd $1
-mkdir fastq_rename
-if [ "$(find . -type d -name "barcode*" )" != "" ]
-then
-for dir in barcode*/
-  do
-    dir=${dir%*/}
-    count=`ls -1 $dir/*.fastq.gz 2>/dev/null | wc -l`
-    if [ $count != 0 ];then
-      echo Merge files in $PWD/$dir/ to $PWD/fastq_rename/$dir.fastq.gz | tee fastq_rename/rename.log
-      cat $dir/*.fastq.gz > fastq_rename/$dir.fastq.gz
-    else
-      echo Merge files in $PWD/$dir to $PWD/fastq_rename/$dir.fastq | tee fastq_rename/rename.log
-      cat $dir/*.fastq > fastq_rename/$dir.fastq
-      echo Compress $PWD/fastq_rename/$dir.fastq to $PWD/fastq_rename/$dir.fastq.gz | tee fastq_rename/rename.log
-      pigz fastq_rename/$dir.fastq
-      #rm -rf *.fastq
-    fi
-  done
-fi
+search_path=$(realpath $1)
+parent_dir_of_search_path=$(dirname $(realpath $1))
+rename_dir=$(dirname $(realpath $1))/fastq_rename
+csv_path=$(realpath $2)
 
-while IFS=, read -r ob nb
-do
-  echo rename $PWD/fastq_rename/$ob.fastq.gz to $PWD/fastq_rename/$nb.fastq.gz | tee fastq_rename/rename.log
-  mv fastq_rename/$ob.fastq.gz fastq_rename/$nb.fastq.gz
-done < $2
+find $1 -type d -name 'barcode*' -ls -execdir sh -c 'mkdir -p ../fastq_rename && cat {}/*.fastq > ../fastq_rename/{}.fastq && pigz ../fastq_rename/{}.fastq' sh ";"
 
-echo Running seqkit | tee fastq_rename/rename.log
-seqkit stats -a fastq_rename/*.fastq.gz &> fastq_rename/seqkit.txt
-echo Finished | tee fastq_rename.log
+while IFS=, read ob nb; do
+  mv $rename_dir/"$ob".fastq.gz $rename_dir/"$nb".fastq.gz
+done < $csv_path
+
+seqkit stats -a $rename_dir/*.fastq.gz &> $rename_dir/seqkit.txt
+
+
